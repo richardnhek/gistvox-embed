@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gistvox Story</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  padding: 16px;
+  background: var(--bg, #ffffff);
+  color: var(--text, #1f2937);
+}
+
+.embed-loading, .embed-error { 
+  text-align: center; 
+  color: var(--muted, #6b7280);
+  font-size: 14px;
+}
+
+.embed-error { 
+  color: #ef4444; 
+}
+
+.embed-container {
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  padding: 16px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.embed-container:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Now Playing Header */
+.now-playing {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #3b82f6;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.speaker-icon {
+  width: 14px;
+  height: 14px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Header Section */
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.username {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text, #1f2937);
+}
+
+.timestamp {
+  color: var(--muted, #6b7280);
+  font-size: 12px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text, #1f2937);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+/* Audio Player Section */
+.player-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 12px;
+  background: var(--player-bg, #f9fafb);
+  border-radius: 8px;
+}
+
+.play-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--card-bg, #ffffff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.play-button:hover {
+  background: var(--hover-bg, #f3f4f6);
+  transform: scale(1.05);
+}
+
+.play-icon, .pause-icon {
+  width: 16px;
+  height: 16px;
+  fill: var(--text, #1f2937);
+}
+
+.audio-player {
+  flex: 1;
+  height: 32px;
+}
+
+.audio-player::-webkit-media-controls-panel {
+  background: transparent;
+}
+
+.duration-badge {
+  padding: 2px 8px;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--muted, #6b7280);
+  white-space: nowrap;
+}
+
+/* Stats Section */
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px solid var(--border, #e5e7eb);
+  font-size: 13px;
+  color: var(--muted, #6b7280);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+/* Description */
+.description {
+  margin: 12px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary, #4b5563);
+}
+
+/* Minimal Mode Adjustments */
+.minimal .now-playing {
+  display: none;
+}
+
+.minimal .description {
+  display: none;
+}
+
+.minimal .stats {
+  display: none;
+}
+
+.minimal .player-section {
+  margin: 12px 0 0 0;
+  padding: 8px;
+}
+
+.minimal .title {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+/* Dark Theme */
+body.dark {
+  --bg: #0f172a;
+  --card-bg: #1e293b;
+  --text: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --muted: #64748b;
+  --border: #334155;
+  --player-bg: #1e293b;
+  --hover-bg: #334155;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .embed-container {
+    padding: 12px;
+  }
+  
+  .title {
+    font-size: 14px;
+  }
+  
+  .stats {
+    font-size: 12px;
+    gap: 12px;
+  }
+}
+
+/* Loading Animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.loading-skeleton {
+  background: linear-gradient(90deg, 
+    var(--border) 25%, 
+    var(--player-bg) 50%, 
+    var(--border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+</style>
+</head>
+<body>
+<div id="embed" class="embed-loading">Loading story...</div>
+
+<script>
+// Parse params
+const params = new URLSearchParams(window.location.search);
+const postId = params.get('id'); 
+const theme = params.get('theme') === 'dark' ? 'dark' : 'light';
+const minimal = params.get('minimal') === 'true';
+const autoplay = params.get('autoplay') === 'true';
+
+// Validate post ID
+if (!postId || postId.length !== 36) {
+  document.getElementById('embed').innerHTML = '<div class="embed-error">Invalid or missing post ID</div>';
+  throw new Error('Invalid post ID');
+}
+
+// Apply theme
+if (theme === 'dark') document.body.classList.add('dark');
+
+// Supabase config
+const SUPABASE_URL = 'https://vrcshstpoimwpwyyamvq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZyY3Noc3Rwb2ltd3B3eXlhbXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MTg4NzEsImV4cCI6MjA3MTE5NDg3MX0.yAJbFPzYTGLwSZFOAVRukwXyNQQ69cdVYwYWvRAkUNc';
+
+// Format time ago
+function timeAgo(date) {
+  const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+  const intervals = {
+    year: 31536000,
+    month: 2592000,
+    week: 604800,
+    day: 86400,
+    hour: 3600,
+    minute: 60
+  };
+  
+  for (const [name, secondsInInterval] of Object.entries(intervals)) {
+    const interval = Math.floor(seconds / secondsInInterval);
+    if (interval >= 1) {
+      return interval === 1 ? `1 ${name} ago` : `${interval} ${name}s ago`;
+    }
+  }
+  return 'just now';
+}
+
+// Format duration from seconds
+function formatDuration(seconds) {
+  if (!seconds) return '0:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Fetch and render
+async function loadEmbed() {
+  const container = document.getElementById('embed');
+  
+  try {
+    // Fetch post data
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/posts?id=eq.${postId}&select=id,title,description,audio_url,audio_duration,created_at,listens_count,likes_count,saves_count,shares_count,audience_type,user_id`,
+      {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      }
+    );
+
+    if (!response.ok) throw new Error('Failed to fetch');
+    
+    const data = await response.json();
+    if (!data || data.length === 0) {
+      container.innerHTML = '<div class="embed-error">Story not found</div>';
+      return;
+    }
+
+    const post = data[0];
+    
+    // Check if public
+    if (post.audience_type !== 'public') {
+      container.innerHTML = '<div class="embed-error">This story is for a specific audience</div>';
+      return;
+    }
+
+    // Fetch user data
+    let user = {};
+    if (post.user_id) {
+      const userResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/users?id=eq.${post.user_id}&select=id,handle,display_name,avatar_url`,
+        {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        }
+      );
+      const userData = await userResponse.json();
+      if (userData && userData.length > 0) {
+        user = userData[0];
+      }
+    }
+
+    // Render embed
+    const displayName = user.display_name || user.handle || 'Anonymous';
+    const initials = displayName[0].toUpperCase();
+    const timeAgoStr = timeAgo(post.created_at);
+    const duration = formatDuration(post.audio_duration);
+    
+    container.className = minimal ? 'embed-container minimal' : 'embed-container';
+    container.innerHTML = `
+      <div class="now-playing">
+        <svg class="speaker-icon" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 3.22L6.603 6H3a1 1 0 00-1 1v6a1 1 0 001 1h3.603L10 16.78V3.22zM14.82 4.58a7.023 7.023 0 010 10.84l-.71-.71a5.975 5.975 0 000-8.42l.71-.71zm-2.12 2.12a4.008 4.008 0 010 6.16l-.71-.71a2.96 2.96 0 000-4.74l.71-.71z"/>
+        </svg>
+        NOW PLAYING
+      </div>
+      
+      <div class="header">
+        <div class="avatar">
+          ${user.avatar_url ? `<img src="${user.avatar_url}" alt="${displayName}">` : initials}
+        </div>
+        <div class="content">
+          <div class="user-info">
+            <span class="username">@${user.handle || 'anonymous'}</span>
+            <span class="timestamp">• ${timeAgoStr}</span>
+          </div>
+        </div>
+      </div>
+      
+      <h3 class="title">${post.title || 'Untitled Story'}</h3>
+      
+      ${post.description && !minimal ? `<p class="description">${post.description}</p>` : ''}
+      
+      <div class="player-section">
+        <button class="play-button" onclick="togglePlay()">
+          <svg class="play-icon" id="playIcon" viewBox="0 0 20 20" style="display:block">
+            <path d="M6.3 2.84A1.013 1.013 0 004 3.8v12.4c0 .792.87 1.267 1.54.84l9.94-6.2a1 1 0 000-1.64l-9.94-6.2z"/>
+          </svg>
+          <svg class="pause-icon" id="pauseIcon" viewBox="0 0 20 20" style="display:none">
+            <path d="M5 4a1 1 0 00-1 1v10a1 1 0 001 1h3a1 1 0 001-1V5a1 1 0 00-1-1H5zm7 0a1 1 0 00-1 1v10a1 1 0 001 1h3a1 1 0 001-1V5a1 1 0 00-1-1h-3z"/>
+          </svg>
+        </button>
+        
+        <audio id="audioPlayer" ${autoplay ? 'autoplay' : ''}>
+          <source src="${post.audio_url}" type="audio/mpeg">
+          Your browser does not support the audio element.
+        </audio>
+        
+        <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
+          <input type="range" id="progressBar" value="0" min="0" max="100" 
+                 style="flex: 1; height: 4px; cursor: pointer;">
+          <span class="duration-badge" id="duration">${duration}</span>
+        </div>
+      </div>
+      
+      <div class="stats">
+        <span class="stat-item">
+          <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          ${post.listens_count || 0} listens
+        </span>
+        <span class="stat-item">
+          <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+          ${post.likes_count || 0}
+        </span>
+        <span class="stat-item">
+          <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          ${post.saves_count || 0}
+        </span>
+        <span class="stat-item">
+          <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a9.001 9.001 0 01-7.432 0m9.032-4.026A9.001 9.001 0 0112 3c-4.474 0-8.268 2.943-9.543 7a9.97 9.97 0 011.827 3.342m7.432 4.026a9.97 9.97 0 001.827-3.342"/>
+          </svg>
+          ${post.shares_count || 0}
+        </span>
+      </div>
+    `;
+    
+    // Set up audio player
+    const audio = document.getElementById('audioPlayer');
+    const progressBar = document.getElementById('progressBar');
+    const durationSpan = document.getElementById('duration');
+    
+    // Set initial duration from database
+    if (post.audio_duration) {
+      progressBar.max = post.audio_duration;
+      durationSpan.textContent = formatDuration(post.audio_duration);
+    }
+    
+    audio.addEventListener('loadedmetadata', () => {
+      progressBar.max = audio.duration;
+      durationSpan.textContent = formatDuration(audio.duration);
+    });
+    
+    audio.addEventListener('timeupdate', () => {
+      progressBar.value = audio.currentTime;
+      const percent = (audio.currentTime / audio.duration) * 100;
+      progressBar.style.background = `linear-gradient(to right, #3b82f6 ${percent}%, #e5e7eb ${percent}%)`;
+    });
+    
+    audio.addEventListener('play', () => {
+      document.getElementById('playIcon').style.display = 'none';
+      document.getElementById('pauseIcon').style.display = 'block';
+      
+      // Track play event
+      if (window.parent !== window) {
+        window.parent.postMessage({ 
+          type: 'gistvox-embed-event', 
+          action: 'play', 
+          storyId: postId 
+        }, '*');
+      }
+    });
+    
+    audio.addEventListener('pause', () => {
+      document.getElementById('playIcon').style.display = 'block';
+      document.getElementById('pauseIcon').style.display = 'none';
+    });
+    
+    progressBar.addEventListener('input', (e) => {
+      audio.currentTime = e.target.value;
+    });
+    
+    // Global play/pause function
+    window.togglePlay = () => {
+      if (audio.paused) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    };
+    
+  } catch (error) {
+    console.error('Embed error:', error);
+    container.innerHTML = `<div class="embed-error">
+      Failed to load story<br>
+      <small style="font-size:11px;opacity:0.7">${error.message || 'Unknown error'}</small>
+    </div>`;
+  }
+}
+
+// Load immediately
+loadEmbed();
+</script>
+</body>
+</html>
