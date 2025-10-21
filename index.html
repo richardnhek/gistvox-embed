@@ -27,7 +27,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
+  min-height: 350px;
   padding: 16px;
   background: transparent;
   color: var(--text);
@@ -40,7 +40,7 @@ body {
   padding: 14px;
   width: 100%;
   max-width: 380px;
-  min-height: 520px;
+  min-height: 430px;
   position: relative;
   transition: all 0.3s ease;
   box-shadow: 
@@ -506,7 +506,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 // Parse URL parameters
 const params = new URLSearchParams(window.location.search);
-const postId = params.get('id');
+const postId = "00c3c293-5973-4307-9938-84669a277447";
 const theme = params.get('theme') || 'light';
 const minimal = params.get('minimal') === 'true';
 const autoplay = params.get('autoplay') === 'true';
