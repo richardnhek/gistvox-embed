@@ -40,13 +40,12 @@ body {
   padding: 14px;
   width: 100%;
   max-width: 380px;
-  min-height: 430px;
+  min-height: 410px;
   position: relative;
   transition: all 0.3s ease;
   box-shadow: 
     0 2px 16px rgba(158, 186, 207, 0.15),
     0 1px 3px rgba(0, 0, 0, 0.05);
-  /* Ring effect */
   border: 2px solid var(--ring-color);
 }
 
@@ -310,7 +309,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
+  gap: 22px;
   margin: 16px 0 20px 0;
 }
 
@@ -331,14 +330,21 @@ body {
   cursor: not-allowed;
 }
 
+/* bigger skip/rewind */
 .control-btn.skip {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
 }
 
+.control-btn.skip svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* bigger play */
 .play-btn {
-  width: 64px;
-  height: 64px;
+  width: 84px;          /* was 64px */
+  height: 84px;         /* was 64px */
   border-radius: 50%;
   border: 2px solid var(--primary);
   background: transparent;
@@ -351,26 +357,23 @@ body {
   box-shadow: 0 4px 16px rgba(158, 186, 207, 0.35);
 }
 
-.play-btn.playing svg {
-  color: white;
+.play-btn.playing svg { color: white; }
+.play-btn:not(.playing) svg { color: var(--primary); }
+
+/* make play icon larger */
+.play-btn svg {
+  width: 28px;          /* was 18px inline */
+  height: 28px;
 }
 
-.play-btn:not(.playing) svg {
-  color: var(--primary);
-}
-
-/* Action Buttons - matching now_playing_card.dart */
+/* Action Buttons */
 .action-buttons {
   display: flex;
   gap: 8px;
   margin: 12px 0;
 }
 
-.action-row {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-}
+.action-row { display: flex; gap: 8px; width: 100%; }
 
 .action-btn {
   flex: 1;
@@ -394,10 +397,7 @@ body {
   border-color: var(--primary);
 }
 
-.action-btn svg {
-  width: 14px;
-  height: 14px;
-}
+.action-btn svg { width: 14px; height: 14px; }
 
 /* Stats Bar */
 .stats-bar {
@@ -417,18 +417,11 @@ body {
 }
 
 /* Loading & Error States */
-.loading, .error {
-  text-align: center;
-  padding: 40px;
-}
-
-.loading {
-  color: var(--muted);
-}
+.loading, .error { text-align: center; padding: 40px; }
+.loading { color: var(--muted); }
 
 .loading-spinner {
-  width: 30px;
-  height: 30px;
+  width: 30px; height: 30px;
   border: 3px solid var(--border);
   border-top-color: var(--primary);
   border-radius: 50%;
@@ -436,14 +429,9 @@ body {
   margin: 0 auto 12px;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-.error {
-  color: #ef4444;
-}
+.error { color: #ef4444; }
 
 /* Dark theme */
 body.dark {
@@ -453,43 +441,19 @@ body.dark {
   --muted-bg: #1e293b;
   --border: #334155;
 }
-
-body.dark .gistvox-player {
-  background: #1e293b;
-}
-
-body.dark .stats-bar {
-  background: #1a1a1a;
-}
+body.dark .gistvox-player { background: #1e293b; }
+body.dark .stats-bar { background: #1a1a1a; }
 
 /* Minimal mode */
-.minimal .brand-header,
-.minimal .description,
-.minimal .stats-bar {
-  display: none;
-}
-
-.minimal .progress-section {
-  margin-bottom: 4px;
-}
-
-.minimal .controls {
-  margin: 12px 0;
-}
+.minimal .brand-header, .minimal .description, .minimal .stats-bar { display: none; }
+.minimal .progress-section { margin-bottom: 4px; }
+.minimal .controls { margin: 12px 0; }
 
 /* Responsive */
 @media (max-width: 480px) {
-  .gistvox-player {
-    padding: 12px;
-  }
-  
-  .title {
-    font-size: 14px;
-  }
-  
-  .stats-text {
-    font-size: 10px;
-  }
+  .gistvox-player { padding: 12px; }
+  .title { font-size: 14px; }
+  .stats-text { font-size: 10px; }
 }
 </style>
 </head>
@@ -506,7 +470,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 // Parse URL parameters
 const params = new URLSearchParams(window.location.search);
-const postId = "00c3c293-5973-4307-9938-84669a277447";
+const postId = "00c3c293-5973-4307-9938-84669a277447"; // keep as-is for your test
 const theme = params.get('theme') || 'light';
 const minimal = params.get('minimal') === 'true';
 const autoplay = params.get('autoplay') === 'true';
@@ -517,9 +481,7 @@ let isDragging = false;
 let isPlaying = false;
 
 // Apply theme
-if (theme === 'dark') {
-  document.body.classList.add('dark');
-}
+if (theme === 'dark') document.body.classList.add('dark');
 
 // Validation
 if (!postId || postId.length !== 36) {
@@ -527,95 +489,61 @@ if (!postId || postId.length !== 36) {
   throw new Error('Invalid post ID');
 }
 
-// Helper functions
+// Helpers
 function timeAgo(date) {
   const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-  const intervals = {
-    year: 31536000, month: 2592000, week: 604800,
-    day: 86400, hour: 3600, minute: 60
-  };
-  
+  const intervals = { year:31536000, month:2592000, week:604800, day:86400, hour:3600, minute:60 };
   for (const [name, count] of Object.entries(intervals)) {
     const interval = Math.floor(seconds / count);
-    if (interval >= 1) {
-      return interval === 1 ? `1 ${name} ago` : `${interval} ${name}s ago`;
-    }
+    if (interval >= 1) return interval === 1 ? `1 ${name} ago` : `${interval} ${name}s ago`;
   }
   return 'just now';
 }
-
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
-
 function formatWithCommas(num) {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
-
 function formatDate(dateStr) {
   const date = new Date(dateStr);
   const month = date.toLocaleString('en', { month: 'short' });
   return `${month} ${date.getDate()}`;
 }
 
-// Main loader
+// Main
 async function loadPlayer() {
   const container = document.getElementById('player');
-  
   try {
-    // Fetch post data
+    // Fetch post
     const postRes = await fetch(
       `${SUPABASE_URL}/rest/v1/posts?id=eq.${postId}&select=*`,
-      {
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-        }
-      }
+      { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` } }
     );
-    
     if (!postRes.ok) throw new Error('Failed to fetch post');
     const posts = await postRes.json();
-    if (!posts || posts.length === 0) {
-      container.innerHTML = '<div class="error">Story not found</div>';
-      return;
-    }
-    
+    if (!posts || posts.length === 0) { container.innerHTML = '<div class="error">Story not found</div>'; return; }
     const post = posts[0];
-    
-    // Check if public
-    if (post.audience_type !== 'public') {
-      container.innerHTML = '<div class="error">This story is private</div>';
-      return;
-    }
-    
-    // Fetch user data
+
+    if (post.audience_type !== 'public') { container.innerHTML = '<div class="error">This story is private</div>'; return; }
+
+    // Fetch user
     let user = { handle: 'anonymous', display_name: 'Anonymous' };
     if (post.user_id) {
       const userRes = await fetch(
         `${SUPABASE_URL}/rest/v1/users?id=eq.${post.user_id}&select=*`,
-        {
-          headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-          }
-        }
+        { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` } }
       );
       const users = await userRes.json();
-      if (users && users.length > 0) {
-        user = users[0];
-      }
+      if (users && users.length > 0) user = users[0];
     }
-    
-    // Build Branch.io deep link
+
     const branchLink = `https://gistvox.app.link/post/${postId}`;
-    
-    // Render player
     const displayName = user.display_name || user.handle || 'Anonymous';
     const initials = displayName[0].toUpperCase();
-    
+
     container.className = minimal ? 'gistvox-player minimal' : 'gistvox-player';
     container.innerHTML = `
       <div class="brand-header">
@@ -625,21 +553,16 @@ async function loadPlayer() {
           </svg>
           <span>Now Playing</span>
           <div class="audio-bars" id="audioBars" style="display:none">
-            <div class="audio-bar"></div>
-            <div class="audio-bar"></div>
-            <div class="audio-bar"></div>
-            <div class="audio-bar"></div>
-            <div class="audio-bar"></div>
+            <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
           </div>
         </div>
         <a href="${branchLink}" target="_blank" class="gistvox-link">
           <div class="logo-icon">
             <img src="https://vrcshstpoimwpwyyamvq.supabase.co/storage/v1/object/public/gistvox-public/gistvox-logo.png" alt="Gistvox" />
           </div>
-          <span>Gistvox</span>
         </a>
       </div>
-      
+
       <div class="user-section">
         <div class="avatar ${user.avatar_url ? 'with-image' : ''}">
           ${user.avatar_url ? `<img src="${user.avatar_url}" alt="${displayName}">` : initials}
@@ -652,12 +575,12 @@ async function loadPlayer() {
           ${post.description && !minimal ? `<p class="description">${post.description}</p>` : ''}
         </div>
       </div>
-      
+
       <div class="progress-section">
         <div class="progress-container" id="progressContainer">
           <div class="progress-track" id="progressTrack">
-            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-            <div class="progress-thumb" id="progressThumb" style="left: 0%"></div>
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+            <div class="progress-thumb" id="progressThumb" style="left:0%"></div>
           </div>
         </div>
         <div class="time-display">
@@ -665,35 +588,35 @@ async function loadPlayer() {
           <span id="duration">${formatTime(post.audio_duration || 0)}</span>
         </div>
       </div>
-      
+
       <div class="controls">
-        <button class="control-btn skip" id="skipBack" disabled>
-          <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
+        <button class="control-btn skip" id="skipBack" aria-label="Rewind 15 seconds">
+          <svg fill="currentColor" viewBox="0 0 20 20">
             <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z"/>
           </svg>
         </button>
-        <button class="control-btn play-btn" id="playBtn">
-          <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20" id="playIcon">
+        <button class="control-btn play-btn" id="playBtn" aria-label="Play/Pause">
+          <svg fill="currentColor" viewBox="0 0 20 20" id="playIcon">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
           </svg>
-          <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20" id="pauseIcon" style="display:none">
+          <svg fill="currentColor" viewBox="0 0 20 20" id="pauseIcon" style="display:none">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"/>
           </svg>
         </button>
-        <button class="control-btn skip" id="skipForward" disabled>
-          <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
+        <button class="control-btn skip" id="skipForward" aria-label="Skip forward 15 seconds">
+          <svg fill="currentColor" viewBox="0 0 20 20">
             <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4A1 1 0 0010 6v2.798L4.555 5.168z"/>
           </svg>
         </button>
       </div>
-      
+
       <audio id="audioPlayer" ${autoplay ? 'autoplay' : ''}>
         <source src="${post.audio_url}" type="audio/mpeg">
       </audio>
-      
+
       <div class="action-buttons">
         <div class="action-row">
-          <button class="action-btn" onclick="handleShare()">
+          <button class="action-btn" onclick="handleShare(event)">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a9.001 9.001 0 01-7.432 0m9.032-4.026A9.001 9.001 0 0112 3c-4.474 0-8.268 2.943-9.543 7a9.97 9.97 0 011.827 3.342m7.432 4.026a9.97 9.97 0 001.827-3.342"/>
             </svg>
@@ -707,7 +630,7 @@ async function loadPlayer() {
           </button>
         </div>
       </div>
-      
+
       <div class="stats-bar">
         <div class="stats-text">
           ${formatWithCommas(post.listens_count || 0)} listens • 
@@ -717,10 +640,8 @@ async function loadPlayer() {
         </div>
       </div>
     `;
-    
-    // Setup player
+
     setupAudioPlayer();
-    
   } catch (error) {
     console.error('Player error:', error);
     container.innerHTML = '<div class="error">Failed to load story</div>';
@@ -740,18 +661,14 @@ function setupAudioPlayer() {
   const durationEl = document.getElementById('duration');
   const audioBars = document.getElementById('audioBars');
   const player = document.querySelector('.gistvox-player');
-  
+  const skipBack = document.getElementById('skipBack');
+  const skipForward = document.getElementById('skipForward');
+  const SKIP_SECONDS = 15;
+
   // Play/Pause
-  playBtn.addEventListener('click', () => {
-    if (audio.paused) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
-  });
-  
+  playBtn.addEventListener('click', () => { audio.paused ? audio.play() : audio.pause(); });
+
   audio.addEventListener('play', () => {
-    isPlaying = true;
     playIcon.style.display = 'none';
     pauseIcon.style.display = 'block';
     playBtn.classList.add('playing');
@@ -759,9 +676,8 @@ function setupAudioPlayer() {
     audioBars.style.display = 'flex';
     progressFill.classList.add('playing');
   });
-  
+
   audio.addEventListener('pause', () => {
-    isPlaying = false;
     playIcon.style.display = 'block';
     pauseIcon.style.display = 'none';
     playBtn.classList.remove('playing');
@@ -769,12 +685,21 @@ function setupAudioPlayer() {
     audioBars.style.display = 'none';
     progressFill.classList.remove('playing');
   });
-  
+
+  // Enable skip controls
+  skipBack.addEventListener('click', () => {
+    audio.currentTime = Math.max(0, (audio.currentTime || 0) - SKIP_SECONDS);
+  });
+  skipForward.addEventListener('click', () => {
+    const d = isFinite(audio.duration) ? audio.duration : Number.MAX_SAFE_INTEGER;
+    audio.currentTime = Math.min(d, (audio.currentTime || 0) + SKIP_SECONDS);
+  });
+
   // Duration
   audio.addEventListener('loadedmetadata', () => {
-    durationEl.textContent = formatTime(audio.duration);
+    if (isFinite(audio.duration)) durationEl.textContent = formatTime(audio.duration);
   });
-  
+
   // Progress update
   audio.addEventListener('timeupdate', () => {
     if (!isDragging && audio.duration) {
@@ -784,104 +709,102 @@ function setupAudioPlayer() {
       currentTimeEl.textContent = formatTime(audio.currentTime);
     }
   });
-  
-  // Progress bar interaction
+
+  // Drag-to-seek
   let dragStartX = 0;
-  let dragStartPercent = 0;
-  
   const startDrag = (e) => {
     isDragging = true;
     progressTrack.classList.add('dragging');
     progressThumb.classList.add('dragging');
     currentTimeEl.classList.add('dragging');
-    
     const rect = progressContainer.getBoundingClientRect();
     dragStartX = e.clientX || e.touches[0].clientX;
-    dragStartPercent = ((dragStartX - rect.left) / rect.width) * 100;
-    
-    updateProgress(dragStartPercent);
+    const percent = ((dragStartX - rect.left) / rect.width) * 100;
+    updateProgress(Math.max(0, Math.min(100, percent)));
   };
-  
   const doDrag = (e) => {
     if (!isDragging) return;
-    
     const rect = progressContainer.getBoundingClientRect();
     const currentX = e.clientX || e.touches[0].clientX;
     const percent = ((currentX - rect.left) / rect.width) * 100;
-    
     updateProgress(Math.max(0, Math.min(100, percent)));
   };
-  
   const endDrag = () => {
     if (!isDragging) return;
-    
     isDragging = false;
     progressTrack.classList.remove('dragging');
     progressThumb.classList.remove('dragging');
     currentTimeEl.classList.remove('dragging');
-    
     const percent = parseFloat(progressFill.style.width);
-    audio.currentTime = (percent / 100) * audio.duration;
+    if (audio.duration) audio.currentTime = (percent / 100) * audio.duration;
   };
-  
   const updateProgress = (percent) => {
     progressFill.style.width = `${percent}%`;
     progressThumb.style.left = `${percent}%`;
-    const time = (percent / 100) * audio.duration;
+    const time = audio.duration ? (percent / 100) * audio.duration : 0;
     currentTimeEl.textContent = formatTime(time);
   };
-  
-  // Click to seek
+
   progressContainer.addEventListener('click', (e) => {
     if (isDragging) return;
     const rect = progressContainer.getBoundingClientRect();
     const percent = ((e.clientX - rect.left) / rect.width) * 100;
     updateProgress(Math.max(0, Math.min(100, percent)));
-    audio.currentTime = (percent / 100) * audio.duration;
+    if (audio.duration) audio.currentTime = (percent / 100) * audio.duration;
   });
-  
-  // Drag events
   progressContainer.addEventListener('mousedown', startDrag);
   document.addEventListener('mousemove', doDrag);
   document.addEventListener('mouseup', endDrag);
-  
-  // Touch events
   progressContainer.addEventListener('touchstart', startDrag);
   document.addEventListener('touchmove', doDrag);
   document.addEventListener('touchend', endDrag);
-  
-  // Track play event
+
+  // Notify parent
   audio.addEventListener('play', () => {
     if (window.parent !== window) {
-      window.parent.postMessage({
-        type: 'gistvox-embed-play',
-        postId: postId
-      }, '*');
+      window.parent.postMessage({ type: 'gistvox-embed-play', postId }, '*');
     }
   });
 }
 
-// Action button handlers
-window.handleShare = () => {
-  // Copy link to clipboard
-  const shareUrl = window.location.href;
-  navigator.clipboard.writeText(shareUrl).then(() => {
-    const btn = event.target.closest('.action-btn');
-    const originalText = btn.querySelector('span').textContent;
-    btn.querySelector('span').textContent = 'Copied!';
-    setTimeout(() => {
-      btn.querySelector('span').textContent = originalText;
-    }, 2000);
+// Actions
+window.handleShare = (e) => {
+  // Canonical GitHub Pages URL per your requirement
+  const shareUrl = `https://richardnhek.github.io/gistvox-embed/?id=${postId}`;
+
+  const write = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      return true;
+    } catch {
+      // Fallback for older browsers / insecure contexts
+      const ta = document.createElement('textarea');
+      ta.value = shareUrl;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    }
+  };
+
+  write().then((ok) => {
+    const btn = e.currentTarget;
+    const span = btn.querySelector('span');
+    const original = span.textContent;
+    span.textContent = ok ? 'Copied!' : 'Copy failed';
+    setTimeout(() => { span.textContent = original; }, 2000);
   });
 };
 
 window.openInApp = () => {
-  // Open Branch deep link
   const branchLink = `https://gistvox.app.link/post/${postId}`;
   window.open(branchLink, '_blank');
 };
 
-// Load player
+// Load
 loadPlayer();
 </script>
 </body>
