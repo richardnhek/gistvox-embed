@@ -181,10 +181,11 @@ body {
 }
 
 .user-handle {
-  font-size: 14px;
-  font-weight: bold;
-  color: var(--text);
-  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-top: 4px;
+  margin-bottom: 0;
 }
 
 .timestamp {
@@ -568,10 +569,9 @@ async function loadPlayer() {
           ${user.avatar_url ? `<img src="${user.avatar_url}" alt="${displayName}">` : initials}
         </div>
         <div class="content-info">
-          <div class="user-handle">@${user.handle || 'anonymous'}</div>
-          <div class="timestamp">${timeAgo(post.created_at)}</div>
           <h3 class="title">${post.title || 'Untitled Story'}</h3>
           <div class="date">${formatDate(post.created_at)}</div>
+          <div class="user-handle">@${user.handle || 'anonymous'}</div>
           ${post.description && !minimal ? `<p class="description">${post.description}</p>` : ''}
         </div>
       </div>
